@@ -1,0 +1,47 @@
+name: 'PR Release Action'
+description: 'Create releases from pull requests'
+inputs:
+    github_token:
+        description: 'Token to create releases. You can use `secrets.GITHUB_TOKEN`.'
+        required: true
+    prerelease_id:
+        description: 'Identifier to be used to prefix premajor, preminor, prepatch or prerelease version increments.'
+        required: false
+        default: ""
+    dry_run:
+        description: "Only output values without creating a release"
+        required: false
+        default: false
+    release_notes:
+        description: "Include release notes"
+        required: false
+        default: true
+    release_draft:
+        description: "Create releases as draft"
+        required: false
+        default: false
+    prerelease_draft:
+        description: "Create prereleases as draft"
+        required: false
+        default: false
+outputs:
+    release_title:
+        description: 'Release title'
+    release_body:
+        description: 'Release body'
+    release_id:
+        description: 'ID of the new release'
+    release_url:
+        description: 'HTML URL of the new release'
+    release_upload_url:
+        description: 'Upload URL of the new release'
+    bump:
+        description: 'Bump level'
+    version:
+        description: 'Version of the new release'
+runs:
+    using: 'node12'
+    main: 'index.js'
+branding:
+    icon: 'tag'  
+    color: 'purple'
