@@ -10,7 +10,6 @@ async function getNextVersion(prerelease) {
   const token = core.getInput("github_token", { required: true });
   const octokit = new GitHub(token);
   const { owner, repo, number } = context.issue;
-
   const { data: commits } = await octokit.pulls.listCommits({
     owner,
     repo,

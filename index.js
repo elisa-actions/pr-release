@@ -14,7 +14,7 @@ async function run() {
       const pr = await getPR();
       commitSha = pr.data.head.sha;
       if (!pr.data.merged) {
-        console.log(`PR #${number} was closed.`);
+        console.log(`PR #${pr.data.number} was closed.`);
         return;
       }
     } else if (["created", "edited"].includes(context.payload.action)) {
