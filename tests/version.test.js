@@ -1,5 +1,7 @@
 jest.mock("@actions/github");
+jest.mock("@actions/core");
 
+const core = require("@actions/core");
 const { GitHub, context } = require("@actions/github");
 const setInputs = require("./test-utils");
 
@@ -25,6 +27,7 @@ const mockGitHub = (messages) => {
           { ref: "refs/tags/1.2.0" },
           { ref: "refs/tags/1.1.1" },
           { ref: "refs/tags/1.1.0" },
+          { ref: "refs/tags/1.2.1-alpha.r.0" },
           { ref: "refs/tags/1.2.1-rc.0" },
         ],
       })
@@ -100,5 +103,28 @@ describe("Test versioning", () => {
     mockGitHub(messages);
     const nextVersion = await getNextVersion(true);
     expect(nextVersion).toBe("1.2.1-rc.1");
+  })
+
+  test("prerelease identifier with a dot", async () => {
+    setInputs({
+      token: "token",
+      prerelease_id: "alpha.r"
+    });
+    const messages = ["fix: bug fix"];
+    mockGitHub(messages);
+    const nextVersion = await getNextVersion(true);
+    expect(nextVersion).toBe("1.2.1-alpha.r.1");
+  })
+
+  test("prerelease identifier too long", async () => {
+    setInputs({
+      token: "token",
+      prerelease_id: "overtenchar"
+    })
+    const messages = ["fix: bug fix"];
+    mockGitHub(messages);
+    const nextVersion = await getNextVersion(true);
+    expect(nextVersion).toBe(null);
+    expect(core.setFailed).toHaveBeenCalledWith("prerelease_id is too long");
   })
 });

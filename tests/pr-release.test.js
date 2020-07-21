@@ -23,14 +23,13 @@ beforeEach(() => {
 
 afterEach(() => {
   jest.clearAllMocks();
-})
+});
 
 test("PR was closed", async () => {
   context.payload = { action: "closed" };
   getPR.mockReturnValueOnce(
     Promise.resolve({
-      data: { head: { sha: "sha" }, merged: false },
-      number: 1,
+      data: { head: { sha: "sha" }, merged: false, number: 1 },
     })
   );
   await run();
@@ -83,7 +82,10 @@ test("Create release", async () => {
 });
 
 test("Create prerelease", async () => {
-  context.payload = { action: "created", comment: { body: "/prerelease", id: "comment_id" } };
+  context.payload = {
+    action: "created",
+    comment: { body: "/prerelease", id: "comment_id" },
+  };
   getPR.mockReturnValueOnce(
     Promise.resolve({
       data: { head: { sha: "sha" } },
@@ -114,7 +116,10 @@ test("Create prerelease", async () => {
 });
 
 test("Other comment should not trigger build", async () => {
-  context.payload = { action: "created", comment: { body: "Some comment", id: "comment_id" } };
+  context.payload = {
+    action: "created",
+    comment: { body: "Some comment", id: "comment_id" },
+  };
   await run();
   expect(getPR).not.toHaveBeenCalled();
-})
+});
