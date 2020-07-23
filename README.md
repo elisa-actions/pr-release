@@ -4,6 +4,8 @@ GitHub Action for creating semantic releases automatically when a pull request g
 
 A prerelease can be created from a PR by commenting it with `/prerelease`. This  creates a new release with a configurable prerelease identifier and "Pre-release" tag on the GitHub release. If you have configured `prerelease_id` (for example "rc") it will be used to prefix the prerelease increment like this: `1.2.3-rc.0`.
 
+If you have existing releases then at least your latest release should follow the `major.minor.patch` format, otherwise the versioning will start from `0.0.1`.
+
 The release title is obtained from the pull request title and the release body also starts with the body message from the PR. Release notes are automatically generated and grouped by commit types. You can opt out of the release note generation with the `release_notes` input variable.
 
 ## Configuration
@@ -27,8 +29,8 @@ jobs:
       - name: Clone PR branch
         uses: actions/checkout@v2
       - name: Create release
-        uses: ./.github/actions/semantic-release
-        with: ElisaOyj/gh-action-pr-release
+        uses: ElisaOyj/gh-action-pr-release 
+        with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           prerelease_id: "rc"
 ```
