@@ -18,7 +18,8 @@ async function run() {
         return;
       }
     } else if (["created", "edited"].includes(context.payload.action)) {
-      if (context.payload["comment"]["body"] === "/prerelease") {
+      const comment = context.payload["comment"]["body"];
+      if (comment && comment.trim() === "/prerelease") {
         prerelease = true;
         const pr = await getPR();
         commitSha = pr.data.head.sha;

@@ -84,7 +84,7 @@ test("Create release", async () => {
 test("Create prerelease", async () => {
   context.payload = {
     action: "created",
-    comment: { body: "/prerelease", id: "comment_id" },
+    comment: { body: "/prerelease ", id: "comment_id" },
   };
   getPR.mockReturnValueOnce(
     Promise.resolve({
