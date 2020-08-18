@@ -45,6 +45,8 @@ async function getNextVersion(prerelease) {
   }
   const bump = await getBumpLevel(commitMessages, prerelease);
   if (!bump) {
+    core.setOutput("version", null);
+    core.setOutput("bump", null);
     return null;
   }
   console.log(`Bumping with ${bump}`);

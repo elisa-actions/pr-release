@@ -9,6 +9,7 @@ const { addComment, addCommentReaction } = require("./comment");
 async function run() {
   try {
     let prerelease = false;
+    let dry_run = core.getInput("dry_run") === "true";
     let commitSha = null;
     if (context.payload.action === "closed") {
       const pr = await getPR();
@@ -27,11 +28,13 @@ async function run() {
       } else {
         return;
       }
+    } else if (dry_run) {
+      await getNextVersion(false);
+      return;
     } else {
       console.log(`Action ${context.payload.action} not supported`);
       return;
     }
-
     // Check version
     const version = await getNextVersion(prerelease);
     if (!version) {
@@ -43,7 +46,7 @@ async function run() {
     const releaseData = await createReleaseData();
 
     // Create release
-    if (core.getInput("dry_run") !== "true") {
+    if (!dry_run) {
       console.log("Create release");
       const release = await createRelease(
         version.toString(),
