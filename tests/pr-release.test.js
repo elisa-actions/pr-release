@@ -81,6 +81,18 @@ test("Create release", async () => {
   );
 });
 
+test("Dry run labeled event", async () => {
+  context.payload = { action: "labeled" };
+  setInputs({ dry_run: "true" });
+  getNextVersion.mockReturnValueOnce(
+    Promise.resolve()
+  );
+
+  await run();
+
+  expect(getNextVersion).toHaveBeenCalledWith(false);
+})
+
 test("Create prerelease", async () => {
   context.payload = {
     action: "created",

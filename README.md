@@ -35,6 +35,8 @@ jobs:
           prerelease_id: "rc"
 ```
 
+If you use the `dry_run` option then the workflow can also run on other pull request events than `closed`. In this case only the bump level and new version number are outputted. This lets you check whether a new release would be created or not for pull request events such as `synchronize` or `labeled` and use the outputs in the next steps.
+
 ## Inputs
 
 | name              | required | description |
