@@ -32,6 +32,14 @@ beforeEach(() => {
               commit: { message: "fix(review): shouldn't be listed" },
               sha: "sha7"
             },
+            {
+              commit: { message: "fix(deps): bump package" },
+              sha: "sha8"
+            },
+            {
+              commit: { message: "fix(frontend): UI fixed" },
+              sha: "sha9"
+            },
           ],
         })
       ),
@@ -52,6 +60,12 @@ test("create release notes", async () => {
 <details><summary><strong>Bug Fixes</strong></summary><p>
 
 - bugfix [sha3](undefined)
+- **frontend:** UI fixed [sha9](undefined)
+
+</p></details>
+<details><summary><strong>Dependencies</strong></summary><p>
+
+- **deps:** bump package [sha8](undefined)
 
 </p></details>
 <details><summary><strong>Performance Improvements</strong></summary><p>
