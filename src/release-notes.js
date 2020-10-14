@@ -10,6 +10,8 @@ const commitHeaders = {
   revert: "Reverts",
 };
 
+const ignoreScopes = ["fix(review)"];
+
 async function createReleaseNotes() {
   const token = core.getInput("github_token", { required: true });
   const octokit = new GitHub(token);
@@ -29,8 +31,9 @@ async function createReleaseNotes() {
     };
     commits.data.forEach(function (item) {
       const parsedCommit = conventionalCommitsParser.sync(item.commit.message);
+      const scopedType = `${parsedCommit.type}(${parsedCommit.scope})`;
       console.log(parsedCommit);
-      if (parsedCommit.type in commitHeaders) {
+      if (parsedCommit.type in commitHeaders && !ignoreScopes.includes(scopedType)) {
         const scope = parsedCommit.scope ? `**${parsedCommit.scope}:** ` : "";
         const message = `- ${scope}${parsedCommit.subject} [${item.sha.slice(
           0,

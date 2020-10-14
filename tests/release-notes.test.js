@@ -28,6 +28,10 @@ beforeEach(() => {
             },
             { commit: { message: "revert: revert" }, sha: "sha5" },
             { commit: { message: "test: shouldn't be listed" }, sha: "sha6" },
+            {
+              commit: { message: "fix(review): shouldn't be listed" },
+              sha: "sha7"
+            },
           ],
         })
       ),
