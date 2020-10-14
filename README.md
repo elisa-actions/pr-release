@@ -6,7 +6,7 @@ A prerelease can be created from a PR by commenting it with `/prerelease`. This 
 
 If you have existing releases then at least your latest release should follow the `major.minor.patch` format, otherwise the versioning will start from `0.0.1`.
 
-The release title is obtained from the pull request title and the release body also starts with the body message from the PR. Release notes are automatically generated and grouped by commit types. You can opt out of the release note generation with the `release_notes` input variable.
+The release title is obtained from the pull request title and the release body also starts with the body message from the PR. Release notes are automatically generated and grouped by commit types ("test", "docs", "ci" and "chore" commits are excluded). Note also that "fix(review)" commits are excluded from release notes and "fix(deps)" are collected under "Dependencies" header. You can opt out of the release note generation with the `release_notes` input variable.
 
 ## Configuration
 
