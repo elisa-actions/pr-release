@@ -6,9 +6,12 @@ const commitHeaders = {
   feat: "Features",
   feature: "Features",
   fix: "Bug Fixes",
+  "fix(deps)": "Dependencies",
   perf: "Performance Improvements",
   revert: "Reverts",
 };
+
+const ignoreScopes = ["fix(review)"];
 
 async function createReleaseNotes() {
   const token = core.getInput("github_token", { required: true });
@@ -24,13 +27,20 @@ async function createReleaseNotes() {
     const releaseNotes = {
       Features: [],
       "Bug Fixes": [],
+      Dependencies: [],
       "Performance Improvements": [],
       Reverts: [],
     };
     commits.data.forEach(function (item) {
       const parsedCommit = conventionalCommitsParser.sync(item.commit.message);
       console.log(parsedCommit);
-      if (parsedCommit.type in commitHeaders) {
+      const scopedType = parsedCommit.scope
+          ? `${parsedCommit.type}(${parsedCommit.scope})`
+          : parsedCommit.type;
+      const header = scopedType in commitHeaders
+          ? commitHeaders[scopedType]
+          : commitHeaders[parsedCommit.type];
+      if (header && !ignoreScopes.includes(scopedType)) {
         const scope = parsedCommit.scope ? `**${parsedCommit.scope}:** ` : "";
         const message = `- ${scope}${parsedCommit.subject} [${item.sha.slice(
           0,
@@ -43,7 +53,7 @@ async function createReleaseNotes() {
           );
         }
         const notes = notesArray.length ? `\n${notesArray.join("\n")}` : "";
-        releaseNotes[commitHeaders[parsedCommit.type]].push(message + notes);
+        releaseNotes[header].push(message + notes);
       }
     });
     const notesArray = [];
