@@ -8,6 +8,8 @@ If you have existing releases then at least your latest release should follow th
 
 The release title is obtained from the pull request title and the release body also starts with the body message from the PR. Release notes are automatically generated and grouped by commit types ("test", "docs", "ci" and "chore" commits are excluded). Note also that "fix(review)" commits are excluded from release notes and "fix(deps)" are collected under "Dependencies" header. You can opt out of the release note generation with the `release_notes` input variable.
 
+You can use the action with Dependabot pull requests as the list of Dependabot commands is stripped away from the release.
+
 ## Configuration
 
 The action should be configured to run on closed pull requests and issue comments. The action is able to distinguish when PR has been merged and when it has been closed without merging.
