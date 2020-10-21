@@ -70,3 +70,30 @@ test("create release data without release notes", async () => {
       body: "Issue body"
   });
 });
+
+test("Dependabot instructions are removed from release notes", async () => {
+  setInputs({
+    github_token: "token",
+    release_notes: "true",
+  })
+
+  const issue = {
+    data: {
+      title: "Issue title",
+      body: "Dependabot body\n\nDependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can also trigger a rebase manually by commenting `@dependabot rebase`.",
+    }
+  }
+  const github = {
+    issues: {
+      get: jest.fn().mockReturnValueOnce(Promise.resolve(issue))
+    }
+  }
+  GitHub.mockImplementation(() => github)
+
+  const releaseData = await createReleaseData();
+
+  expect(releaseData).toEqual({
+      title: "Issue title",
+      body: "Dependabot body\n\nrelease note data"
+  });
+});

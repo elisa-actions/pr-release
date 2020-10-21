@@ -14,12 +14,21 @@ async function createReleaseData() {
   });
   const title = issue.data.title;
   let body = issue.data.body;
+  body = removeDependabotInstructions(body);
   if (includeReleaseNotes) {
     body = body.concat("\n\n", await createReleaseNotes());
   }
   core.setOutput("release_title", title);
   core.setOutput("release_body", body);
   return { title, body };
+}
+
+function removeDependabotInstructions(body) {
+  const instructionPosition = body.indexOf("Dependabot will resolve any conflicts with this PR");
+  if (instructionPosition === -1) {
+    return body;
+  }
+  return body.substring(0, instructionPosition).trim();
 }
 
 module.exports = createReleaseData;
