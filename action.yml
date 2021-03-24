@@ -24,6 +24,10 @@ inputs:
         description: "Create prereleases as draft"
         required: false
         default: false
+    update_major_tag:
+        description: "Update the major tag to point to the current release, for example 1.2.0 would move the v1 tag"
+        required: false
+        default: false
 outputs:
     release_title:
         description: 'Release title'

@@ -49,6 +49,7 @@ If you use the `dry_run` option then the workflow can also run on other pull req
 | `release_notes`   | no       | Include release notes (default: true) |
 | `release_draft`   | no       | Publish releases as draft |
 | `prerelease_draft`| no       | Publish prereleases as draft |
+| `update_major_tag`| no       | Update the major tag to point to the current release |
 
 ## Outputs
 
