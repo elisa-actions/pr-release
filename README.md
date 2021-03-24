@@ -31,7 +31,7 @@ jobs:
       - name: Clone PR branch
         uses: actions/checkout@v2
       - name: Create release
-        uses: ElisaOyj/gh-action-pr-release 
+        uses: elisa-actions/pr-release 
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           prerelease_id: "rc"
