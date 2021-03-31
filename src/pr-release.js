@@ -5,6 +5,7 @@ const getPR = require("./pr");
 const createReleaseData = require("./release-data");
 const createRelease = require("./create-release");
 const { addComment, addCommentReaction } = require("./comment");
+const updateMajorTag = require("./update-tag");
 
 async function run() {
   try {
@@ -55,6 +56,7 @@ async function run() {
         releaseData.body,
         prerelease
       );
+      updateMajorTag(version, commitSha);
       addComment(
         `Version [${version}](${release.html_url}) ${
           release.draft ? "drafted" : "released"

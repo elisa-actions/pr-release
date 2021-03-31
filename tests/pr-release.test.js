@@ -6,6 +6,7 @@ jest.mock("../src/comment");
 jest.mock("../src/create-release");
 jest.mock("../src/pr");
 jest.mock("../src/release-data");
+jest.mock("../src/update-tag");
 jest.mock("../src/version");
 
 const { addComment, addCommentReaction } = require("../src/comment");
@@ -13,6 +14,7 @@ const createRelease = require("../src/create-release");
 const getPR = require("../src/pr");
 const createReleaseData = require("../src/release-data");
 const getNextVersion = require("../src/version");
+const updateMajorTag = require("../src/update-tag")
 const run = require("../src/pr-release");
 
 beforeEach(() => {
@@ -76,6 +78,7 @@ test("Create release", async () => {
     "Release body",
     false
   );
+  expect(updateMajorTag).toHaveBeenCalledWith("1.2.0", "sha")
   expect(addComment).toHaveBeenCalledWith(
     "Version [1.2.0](URL) released! :zap:"
   );
