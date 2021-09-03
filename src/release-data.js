@@ -13,7 +13,7 @@ async function createReleaseData() {
     issue_number: number,
   });
   const title = issue.data.title;
-  let body = issue.data.body;
+  let body = issue.data.body || "";
   body = removeDependabotInstructions(body);
   if (includeReleaseNotes) {
     body = body.concat("\n\n", await createReleaseNotes());
