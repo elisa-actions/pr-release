@@ -17,7 +17,7 @@
     "@actions/core": "^1.9.1",
     "@actions/github": "^2.2.0",
     "@semantic-release/commit-analyzer": "^8.0.1",
-    "conventional-changelog-conventionalcommits": "^4.6.1",
+    "conventional-changelog-conventionalcommits": "^5.0.0",
     "conventional-commits-parser": "^3.2.2",
     "semver": "^7.3.5"
   },
