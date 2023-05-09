@@ -18,7 +18,7 @@ async function createReleaseNotes() {
   const octokit = new GitHub(token);
   if (context.issue) {
     const { owner, repo, number } = context.issue;
-    const commits = await octokit.pulls.listCommits({
+    const commits = await octokit.rest.pulls.listCommits({
       owner,
       repo,
       pull_number: number,

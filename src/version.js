@@ -10,7 +10,7 @@ async function getNextVersion(prerelease) {
   const token = core.getInput("github_token", { required: true });
   const octokit = new GitHub(token);
   const { owner, repo, number } = context.issue;
-  const { data: commits } = await octokit.pulls.listCommits({
+  const { data: commits } = await octokit.rest.pulls.listCommits({
     owner,
     repo,
     pull_number: number,
@@ -18,7 +18,7 @@ async function getNextVersion(prerelease) {
   });
   const commitMessages = commits.map((commit) => commit.commit.message);
 
-  const { data: refs } = await octokit.git
+  const { data: refs } = await octokit.rest.git
     .listRefs({
       ...context.repo,
       namespace: "tags/",

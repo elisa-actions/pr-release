@@ -8,7 +8,7 @@ async function createRelease(version, commitSha, name, body, prerelease) {
   const octokit = new GitHub(token);
   const { owner, repo } = context.repo;
 
-  const response = await octokit.repos.createRelease({
+  const response = await octokit.rest.repos.createRelease({
     owner,
     repo,
     tag_name: version,

@@ -7,7 +7,7 @@ async function createReleaseData() {
   const includeReleaseNotes = (core.getInput("release_notes").toLowerCase() || "true") === "true";
   const octokit = new GitHub(token);
   const { owner, repo, number } = context.issue;
-  const issue = await octokit.issues.get({
+  const issue = await octokit.rest.issues.get({
     owner,
     repo,
     issue_number: number,
