@@ -1,12 +1,12 @@
 const core = require("@actions/core");
-const { context, GitHub } = require("@actions/github");
+const github = require("@actions/github");
 const createReleaseNotes = require("./release-notes");
 
 async function createReleaseData() {
   const token = core.getInput("github_token", { required: true });
   const includeReleaseNotes = (core.getInput("release_notes").toLowerCase() || "true") === "true";
-  const octokit = new GitHub(token);
-  const { owner, repo, number } = context.issue;
+  const octokit = github.getOctokit(token);
+  const { owner, repo, number } = github.context.issue;
   const issue = await octokit.rest.issues.get({
     owner,
     repo,
