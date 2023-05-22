@@ -1,12 +1,12 @@
 const core = require("@actions/core");
-const { GitHub, context } = require("@actions/github");
+const github = require("@actions/github");
 
 async function createRelease(version, commitSha, name, body, prerelease) {
   const token = core.getInput("github_token", { required: true });
   const releaseDraft = core.getInput("release_draft").toLowerCase() === 'true'
   const preReleaseDraft = core.getInput("prerelease_draft").toLowerCase() === 'true'
-  const octokit = new GitHub(token);
-  const { owner, repo } = context.repo;
+  const octokit = github.getOctokit(token);
+  const { owner, repo } = github.context.repo;
 
   const response = await octokit.rest.repos.createRelease({
     owner,
