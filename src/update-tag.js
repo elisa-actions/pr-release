@@ -1,5 +1,5 @@
 const core = require("@actions/core");
-const { GitHub, context } = require("@actions/github");
+const github = require("@actions/github");
 const semver = require("semver");
 
 async function updateMajorTag(version, sha) {
@@ -7,10 +7,10 @@ async function updateMajorTag(version, sha) {
     return;
   }
   const token = core.getInput("github_token", { required: true });
-  const octokit = new GitHub(token);
+  const octokit = github.getOctokit(token);
   const majorVersion = semver.major(version);
   const majorTag = `v${majorVersion}`;
-  const { owner, repo } = context.repo;
+  const { owner, repo } = github.context.repo;
 
   try {
     await octokit.rest.git.getRef({
