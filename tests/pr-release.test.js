@@ -15,7 +15,7 @@ const getPR = require("../src/pr");
 const createReleaseData = require("../src/release-data");
 const getNextVersion = require("../src/version");
 const updateMajorTag = require("../src/update-tag")
-const run = require("../src/pr-release");
+const { run } = require("../src/pr-release");
 
 beforeEach(() => {
   createReleaseData.mockReturnValueOnce(

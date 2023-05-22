@@ -7,7 +7,7 @@ const createRelease = require("./create-release");
 const { addComment, addCommentReaction } = require("./comment");
 const updateMajorTag = require("./update-tag");
 
-async function run() {
+exports.run = async function () {
   try {
     let prerelease = false;
     let dry_run = core.getInput("dry_run") === "true";
@@ -69,5 +69,3 @@ async function run() {
     core.setFailed(error.message);
   }
 }
-
-module.exports = run;
