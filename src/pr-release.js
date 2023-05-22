@@ -1,5 +1,5 @@
 const core = require("@actions/core");
-const { context } = require("@actions/github");
+const github = require("@actions/github");
 const getNextVersion = require("./version");
 const getPR = require("./pr");
 const createReleaseData = require("./release-data");
@@ -12,20 +12,20 @@ async function run() {
     let prerelease = false;
     let dry_run = core.getInput("dry_run") === "true";
     let commitSha = null;
-    if (context.payload.action === "closed") {
+    if (github.context.payload.action === "closed") {
       const pr = await getPR();
       commitSha = pr.data.head.sha;
       if (!pr.data.merged) {
         console.log(`PR #${pr.data.number} was closed.`);
         return;
       }
-    } else if (["created", "edited"].includes(context.payload.action)) {
-      const comment = context.payload["comment"]["body"];
+    } else if (["created", "edited"].includes(github.context.payload.action)) {
+      const comment = github.context.payload["comment"]["body"];
       if (comment && comment.trim() === "/prerelease") {
         prerelease = true;
         const pr = await getPR();
         commitSha = pr.data.head.sha;
-        addCommentReaction(context.payload.comment.id, "rocket");
+        await addCommentReaction(github.context.payload.comment.id, "rocket");
       } else {
         return;
       }
@@ -33,13 +33,13 @@ async function run() {
       await getNextVersion(false);
       return;
     } else {
-      console.log(`Action ${context.payload.action} not supported`);
+      console.log(`Action ${github.context.payload.action} not supported`);
       return;
     }
     // Check version
     const version = await getNextVersion(prerelease);
     if (!version) {
-      addComment("New release not required :sparkles:");
+      await addComment("New release not required :sparkles:");
       return;
     }
 
@@ -56,8 +56,8 @@ async function run() {
         releaseData.body,
         prerelease
       );
-      updateMajorTag(version, commitSha);
-      addComment(
+      await updateMajorTag(version, commitSha);
+      await addComment(
         `Version [${version}](${release.html_url}) ${
           release.draft ? "drafted" : "released"
         }! :zap:`
