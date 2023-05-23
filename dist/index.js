@@ -44268,12 +44268,12 @@ async function updateMajorTag(version, sha) {
   const { owner, repo } = github.context.repo;
 
   try {
-    await octokit.rest.git.getRef({
+    await octokit.git.getRef({
       owner,
       repo,
       ref: `tags/${majorTag}`,
     });
-    await octokit.rest.git.updateRef({
+    await octokit.git.updateRef({
       owner,
       repo,
       sha,
@@ -44282,7 +44282,7 @@ async function updateMajorTag(version, sha) {
     });
   } catch {
     // ref didn't exist
-    await octokit.rest.git.createRef({
+    await octokit.git.createRef({
       owner,
       repo,
       ref: `refs/tags/${majorTag}`,
@@ -44319,7 +44319,7 @@ async function getNextVersion(prerelease) {
   });
   const commitMessages = commits.map((commit) => commit.commit.message);
 
-  const { data: refs } = await octokit.rest.git
+  const { data: refs } = await octokit.git
     .listRefs({
       ...github.context.repo,
       namespace: "tags/",
