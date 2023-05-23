@@ -2,10 +2,10 @@
   "name": "pr-release-action",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "jest",
-    "build": "ncc build -o . index.js --source-map"
+    "build": "ncc build index.js -o dist --source-map"
   },
   "repository": {
     "type": "git",
