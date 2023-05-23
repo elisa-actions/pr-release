@@ -18,7 +18,7 @@ const buildCommitResponse = (messages) => {
 const mockGitHub = (messages) => {
   const commits = buildCommitResponse(messages);
   const listCommits = jest.fn().mockReturnValueOnce(commits);
-  const listRefs = jest
+  const listMatchingRefs = jest
     .fn()
     .mockReturnValueOnce(
       Promise.resolve({
@@ -36,9 +36,9 @@ const mockGitHub = (messages) => {
       pulls: {
         listCommits: listCommits,
       },
-    },
-    git: {
-      listRefs: listRefs,
+      git: {
+        listMatchingRefs: listMatchingRefs,
+      },
     },
   };
 };
@@ -73,9 +73,10 @@ describe("Test versioning", () => {
       pull_number: 1,
       per_page: 100,
     })
-    expect(githubMock.git.listRefs).toHaveBeenCalledWith({
+    expect(githubMock.rest.git.listMatchingRefs).toHaveBeenCalledWith({
+      owner: "owner",
       repo: "repo",
-      namespace: "tags/",
+      ref: "tags/",
     })
   });
 
