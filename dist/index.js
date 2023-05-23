@@ -44029,7 +44029,7 @@ module.exports = createRelease;
 /***/ }),
 
 /***/ 3207:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 const core = __nccwpck_require__(2186);
 const github = __nccwpck_require__(5438);
@@ -44040,7 +44040,7 @@ const createRelease = __nccwpck_require__(9373);
 const { addComment, addCommentReaction } = __nccwpck_require__(7322);
 const updateMajorTag = __nccwpck_require__(6359);
 
-async function run() {
+exports.run = async function () {
   try {
     let prerelease = false;
     let dry_run = core.getInput("dry_run") === "true";
@@ -44102,8 +44102,6 @@ async function run() {
     core.setFailed(error.message);
   }
 }
-
-module.exports = run;
 
 
 /***/ }),
