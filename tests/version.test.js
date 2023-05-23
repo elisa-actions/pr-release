@@ -36,9 +36,9 @@ const mockGitHub = (messages) => {
       pulls: {
         listCommits: listCommits,
       },
-      git: {
-        listRefs: listRefs,
-      },
+    },
+    git: {
+      listRefs: listRefs,
     },
   };
 };
@@ -73,7 +73,7 @@ describe("Test versioning", () => {
       pull_number: 1,
       per_page: 100,
     })
-    expect(githubMock.rest.git.listRefs).toHaveBeenCalledWith({
+    expect(githubMock.git.listRefs).toHaveBeenCalledWith({
       repo: "repo",
       namespace: "tags/",
     })
