@@ -18,7 +18,7 @@ async function getNextVersion(prerelease) {
   });
   const commitMessages = commits.map((commit) => commit.commit.message);
 
-  const { data: refs } = await octokit.rest.git
+  const { data: refs } = await octokit.git
     .listRefs({
       ...github.context.repo,
       namespace: "tags/",
