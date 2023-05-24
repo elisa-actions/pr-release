@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "jest",
-    "build": "ncc build index.js -o dist --source-map"
+    "build": "ncc build -o dist --source-map -a"
   },
   "repository": {
     "type": "git",
