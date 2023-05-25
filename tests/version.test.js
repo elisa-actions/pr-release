@@ -2,9 +2,8 @@ jest.mock("@actions/github");
 jest.mock("@actions/core");
 
 const core = require("@actions/core");
-const { GitHub, context } = require("@actions/github");
+const github = require("@actions/github");
 const setInputs = require("./test-utils");
-
 const getNextVersion = require("../src/version");
 
 const buildCommitResponse = (messages) => {
@@ -19,7 +18,7 @@ const buildCommitResponse = (messages) => {
 const mockGitHub = (messages) => {
   const commits = buildCommitResponse(messages);
   const listCommits = jest.fn().mockReturnValueOnce(commits);
-  const listRefs = jest
+  const listMatchingRefs = jest
     .fn()
     .mockReturnValueOnce(
       Promise.resolve({
@@ -32,28 +31,30 @@ const mockGitHub = (messages) => {
         ],
       })
     );
-  const github = {
-    pulls: {
-      listCommits,
-    },
-    git: {
-      listRefs,
+  return {
+    rest: {
+      pulls: {
+        listCommits: listCommits,
+      },
+      git: {
+        listMatchingRefs: listMatchingRefs,
+      },
     },
   };
-  GitHub.mockImplementation(() => github);
-  return github;
 };
 
 describe("Test versioning", () => {
   beforeEach(() => {
-    context.issue = {
-      owner: "owner",
-      repo: "repo",
-      number: 1,
-    };
-    context.repo = {
-      repo: "repo"
-    }
+    jest.replaceProperty(github, "context", {
+      issue: {
+        owner: "owner",
+        repo: "repo",
+        number: 1,
+      },
+      repo: {
+        repo: "repo",
+      },
+    });
     setInputs({
       github_token: "token",
       prerelease_id: "rc",
@@ -62,45 +63,51 @@ describe("Test versioning", () => {
 
   test("major version bump", async () => {
     const messages = ["fix!: repair something", "test: add unit tests"];
-    const github = mockGitHub(messages);
+    const githubMock = mockGitHub(messages);
+    github.getOctokit.mockImplementation((token) => githubMock);
     const nextVersion = await getNextVersion(false);
     expect(nextVersion).toBe("2.0.0");
-    expect(github.pulls.listCommits).toHaveBeenCalledWith({
+    expect(githubMock.rest.pulls.listCommits).toHaveBeenCalledWith({
       owner: "owner",
       repo: "repo",
       pull_number: 1,
       per_page: 100,
     })
-    expect(github.git.listRefs).toHaveBeenCalledWith({
+    expect(githubMock.rest.git.listMatchingRefs).toHaveBeenCalledWith({
+      owner: "owner",
       repo: "repo",
-      namespace: "tags/",
+      ref: "tags/",
     })
   });
 
   test("minor version bump", async () => {
     const messages = ["feat: new feature", "test: test for feature"];
-    mockGitHub(messages);
+    const githubMock = mockGitHub(messages);
+    github.getOctokit.mockImplementation((token) => githubMock);
     const nextVersion = await getNextVersion(false);
     expect(nextVersion).toBe("1.3.0");
   })
 
   test("patch version bump", async () => {
     const messages = ["fix: bug fix", "test: test for bugfix"];
-    mockGitHub(messages);
+    const githubMock = mockGitHub(messages);
+    github.getOctokit.mockImplementation((token) => githubMock);
     const nextVersion = await getNextVersion(false);
     expect(nextVersion).toBe("1.2.1");
   })
 
   test("rc version", async () => {
     const messages = ["feat: new feature"];
-    mockGitHub(messages);
+    const githubMock = mockGitHub(messages);
+    github.getOctokit.mockImplementation((token) => githubMock);
     const nextVersion = await getNextVersion(true);
     expect(nextVersion).toBe("1.3.0-rc.0");
   })
 
   test("rc version with existing rc version", async () => {
     const messages = ["fix: bug fix"];
-    mockGitHub(messages);
+    const githubMock = mockGitHub(messages);
+    github.getOctokit.mockImplementation((token) => githubMock);
     const nextVersion = await getNextVersion(true);
     expect(nextVersion).toBe("1.2.1-rc.1");
   })
@@ -111,7 +118,8 @@ describe("Test versioning", () => {
       prerelease_id: "alpha.r"
     });
     const messages = ["fix: bug fix"];
-    mockGitHub(messages);
+    const githubMock = mockGitHub(messages);
+    github.getOctokit.mockImplementation((token) => githubMock);
     const nextVersion = await getNextVersion(true);
     expect(nextVersion).toBe("1.2.1-alpha.r.1");
   })
@@ -122,7 +130,8 @@ describe("Test versioning", () => {
       prerelease_id: "overtenchar"
     })
     const messages = ["fix: bug fix"];
-    mockGitHub(messages);
+    const githubMock = mockGitHub(messages);
+    github.getOctokit.mockImplementation((token) => githubMock);
     const nextVersion = await getNextVersion(true);
     expect(nextVersion).toBe(null);
     expect(core.setFailed).toHaveBeenCalledWith("prerelease_id is too long");

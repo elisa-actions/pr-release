@@ -1,5 +1,5 @@
 const core = require("@actions/core");
-const { GitHub, context } = require("@actions/github");
+const github = require("@actions/github");
 const semver = require("semver");
 const { analyzeCommits } = require("@semantic-release/commit-analyzer");
 
@@ -8,9 +8,9 @@ const PRERELEASE_ID_MAX_LENGTH = 10;
 
 async function getNextVersion(prerelease) {
   const token = core.getInput("github_token", { required: true });
-  const octokit = new GitHub(token);
-  const { owner, repo, number } = context.issue;
-  const { data: commits } = await octokit.pulls.listCommits({
+  const octokit = github.getOctokit(token);
+  const { owner, repo, number } = github.context.issue;
+  const { data: commits } = await octokit.rest.pulls.listCommits({
     owner,
     repo,
     pull_number: number,
@@ -18,10 +18,10 @@ async function getNextVersion(prerelease) {
   });
   const commitMessages = commits.map((commit) => commit.commit.message);
 
-  const { data: refs } = await octokit.git
-    .listRefs({
-      ...context.repo,
-      namespace: "tags/",
+  const { data: refs } = await octokit.rest.git.listMatchingRefs({
+      owner,
+      repo,
+      ref: "tags/",
     })
     .catch(() => {
       return { data: [] };

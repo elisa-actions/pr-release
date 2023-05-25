@@ -1,34 +1,37 @@
 jest.mock("@actions/github");
 
-const { GitHub, context } = require("@actions/github");
-
 const setInputs = require("./test-utils");
 const getPR = require("../src/pr");
+const github = require("@actions/github");
 
 beforeEach(() => {
   setInputs({
     github_token: "token",
   });
-  context.issue = {
-    owner: "owner",
-    repo: "repo",
-    number: 1,
-  };
 });
 
 test("get pull request", async () => {
   dummyPR = { data: { head: { sha: "sha " } } };
-  const github = {
-    pulls: {
-      get: jest.fn().mockReturnValueOnce(Promise.resolve(dummyPR)),
+  const mockGithub = {
+    rest: {
+      pulls: {
+        get: jest.fn().mockResolvedValueOnce(dummyPR),
+      },
     },
   };
-  GitHub.mockImplementation(() => github);
+  github.getOctokit.mockImplementation((token) => mockGithub);
+  jest.replaceProperty(github, "context", {
+    issue: {
+      owner: "owner",
+      repo: "repo",
+      number: 1,
+    },
+  });
 
   const pr = await getPR();
 
   expect(pr).toEqual(dummyPR);
-  expect(github.pulls.get).toHaveBeenCalledWith({
+  expect(mockGithub.rest.pulls.get).toHaveBeenCalledWith({
     owner: "owner",
     repo: "repo",
     pull_number: 1,
