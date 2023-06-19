@@ -1,6 +1,6 @@
 const core = require("@actions/core");
-const { GitHub, context } = require("@actions/github");
-var conventionalCommitsParser = require("conventional-commits-parser");
+const github = require("@actions/github");
+let conventionalCommitsParser = require("conventional-commits-parser");
 
 const commitHeaders = {
   feat: "Features",
@@ -15,10 +15,10 @@ const ignoreScopes = ["fix(review)"];
 
 async function createReleaseNotes() {
   const token = core.getInput("github_token", { required: true });
-  const octokit = new GitHub(token);
-  if (context.issue) {
-    const { owner, repo, number } = context.issue;
-    const commits = await octokit.pulls.listCommits({
+  const octokit = github.getOctokit(token);
+  if (github.context.issue) {
+    const { owner, repo, number } = github.context.issue;
+    const commits = await octokit.rest.pulls.listCommits({
       owner,
       repo,
       pull_number: number,

@@ -1,56 +1,66 @@
 jest.mock("@actions/github");
-const { GitHub, context } = require("@actions/github");
+const github = require("@actions/github");
 const setInputs = require("./test-utils");
 const updateMajorTag = require("../src/update-tag");
 
-let github;
+let githubMock;
 
 beforeEach(() => {
-  context.repo = {
-    owner: "owner",
-    repo: "repo",
-  };
-  github = {
-    git: {
-      getRef: jest.fn(),
-      updateRef: jest.fn(),
-      createRef: jest.fn(),
+  githubMock = {
+    rest: {
+      git: {
+        getRef: jest.fn(),
+        updateRef: jest.fn(),
+        createRef: jest.fn(),
+      },
     },
   };
-  GitHub.mockImplementation(() => github);
+  jest.replaceProperty(github, "context", {
+    repo: {
+      owner: "owner",
+      repo: "repo",
+    },
+  });
+  github.getOctokit.mockImplementation((token) => githubMock);
 });
 
 test("major tag is updated", async () => {
   setInputs({ github_token: "token", update_major_tag: "true" });
   await updateMajorTag("1.2.0", "abcd1234");
-  expect(github.git.getRef).toHaveBeenCalledWith({
+  expect(githubMock.rest.git.getRef).toHaveBeenCalledWith({
     owner: "owner",
     ref: "tags/v1",
     repo: "repo",
   });
-  expect(github.git.updateRef).toHaveBeenCalledWith({
+  expect(githubMock.rest.git.updateRef).toHaveBeenCalledWith({
     force: true,
     owner: "owner",
     ref: "tags/v1",
     repo: "repo",
     sha: "abcd1234",
   });
-  expect(github.git.createRef).not.toHaveBeenCalled();
+  expect(githubMock.rest.git.createRef).not.toHaveBeenCalled();
 });
 
 test("major tag is created", async () => {
   setInputs({ github_token: "token", update_major_tag: "true" });
-  github.git.getRef.mockImplementation(() => {
-    throw new Error();
-  });
+  githubMock = {
+    rest: {
+      git: {
+        getRef: jest.fn(() => Promise.reject("rejected")),
+        updateRef: jest.fn(),
+        createRef: jest.fn(),
+      },
+    },
+  };
   await updateMajorTag("1.2.0", "abcd1234");
-  expect(github.git.getRef).toHaveBeenCalledWith({
+  expect(githubMock.rest.git.getRef).toHaveBeenCalledWith({
     owner: "owner",
     ref: "tags/v1",
     repo: "repo",
   });
-  expect(github.git.updateRef).not.toHaveBeenCalled();
-  expect(github.git.createRef).toHaveBeenCalledWith({
+  expect(githubMock.rest.git.updateRef).not.toHaveBeenCalled();
+  expect(githubMock.rest.git.createRef).toHaveBeenCalledWith({
     owner: "owner",
     ref: "refs/tags/v1",
     repo: "repo",
@@ -61,15 +71,15 @@ test("major tag is created", async () => {
 test("tag is not updated for prereleases", async () => {
   setInputs({ github_token: "token", update_major_tag: "true" });
   await updateMajorTag("1.2.0-rc.1", "abcd1234");
-  expect(github.git.getRef).not.toHaveBeenCalled();
-  expect(github.git.updateRef).not.toHaveBeenCalled();
-  expect(github.git.createRef).not.toHaveBeenCalled();
+  expect(githubMock.rest.git.getRef).not.toHaveBeenCalled();
+  expect(githubMock.rest.git.updateRef).not.toHaveBeenCalled();
+  expect(githubMock.rest.git.createRef).not.toHaveBeenCalled();
 });
 
 test("tag is not updated when configuration is not enabled", async () => {
   setInputs({ github_token: "token", update_major_tag: "" });
   await updateMajorTag("1.2.0", "abcd1234");
-  expect(github.git.getRef).not.toHaveBeenCalled();
-  expect(github.git.updateRef).not.toHaveBeenCalled();
-  expect(github.git.createRef).not.toHaveBeenCalled();
+  expect(githubMock.rest.git.getRef).not.toHaveBeenCalled();
+  expect(githubMock.rest.git.updateRef).not.toHaveBeenCalled();
+  expect(githubMock.rest.git.createRef).not.toHaveBeenCalled();
 });

@@ -2,30 +2,32 @@ jest.mock("@actions/github");
 jest.mock("../src/release-notes");
 const setInputs = require("./test-utils");
 
-const { GitHub, context } = require("@actions/github");
+const github = require("@actions/github");
 const createReleaseNotes = require("../src/release-notes");
-
 const createReleaseData = require("../src/release-data");
 
-
 beforeEach(() => {
-  context.issue = {
-    owner: "owner",
-    repo: "repo",
-    number: 1,
-  };
   const issue = {
     data: {
       title: "Issue title",
       body: "Issue body",
     }
   }
-  const github = {
-    issues: {
-      get: jest.fn().mockReturnValueOnce(Promise.resolve(issue))
+  const githubMock = {
+    rest: {
+      issues: {
+        get: jest.fn().mockReturnValueOnce(Promise.resolve(issue))
+      }
     }
   }
-  GitHub.mockImplementation(() => github)
+  jest.replaceProperty(github, "context", {
+    issue: {
+      owner: "owner",
+      repo: "repo",
+      number: 1,
+    }
+  });
+  github.getOctokit.mockImplementation((token) => githubMock);
   createReleaseNotes.mockReturnValueOnce(Promise.resolve("release note data"));
 });
 
@@ -83,12 +85,14 @@ test("Dependabot instructions are removed from release notes", async () => {
       body: "Dependabot body\n\nDependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can also trigger a rebase manually by commenting `@dependabot rebase`.",
     }
   }
-  const github = {
-    issues: {
-      get: jest.fn().mockReturnValueOnce(Promise.resolve(issue))
-    }
+  const githubMock = {
+    rest: {
+      issues: {
+        get: jest.fn().mockReturnValueOnce(Promise.resolve(issue))
+      },
+    },
   }
-  GitHub.mockImplementation(() => github)
+  github.getOctokit.mockImplementation((token) => githubMock);
 
   const releaseData = await createReleaseData();
 

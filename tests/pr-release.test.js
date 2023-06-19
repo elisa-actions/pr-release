@@ -1,5 +1,5 @@
 jest.mock("@actions/github");
-const { context } = require("@actions/github");
+const github = require("@actions/github");
 const setInputs = require("./test-utils");
 
 jest.mock("../src/comment");
@@ -15,7 +15,7 @@ const getPR = require("../src/pr");
 const createReleaseData = require("../src/release-data");
 const getNextVersion = require("../src/version");
 const updateMajorTag = require("../src/update-tag")
-const run = require("../src/pr-release");
+const { run } = require("../src/pr-release");
 
 beforeEach(() => {
   createReleaseData.mockReturnValueOnce(
@@ -28,7 +28,11 @@ afterEach(() => {
 });
 
 test("PR was closed", async () => {
-  context.payload = { action: "closed" };
+  jest.replaceProperty(github, "context", {
+    payload: {
+      action: "closed",
+    },
+  });
   getPR.mockReturnValueOnce(
     Promise.resolve({
       data: { head: { sha: "sha" }, merged: false, number: 1 },
@@ -39,7 +43,11 @@ test("PR was closed", async () => {
 });
 
 test("New release not required", async () => {
-  context.payload = { action: "closed" };
+  jest.replaceProperty(github, "context", {
+    payload: {
+      action: "closed",
+    },
+  });
   getPR.mockReturnValueOnce(
     Promise.resolve({
       data: { head: { sha: "sha" }, merged: true },
@@ -54,7 +62,11 @@ test("New release not required", async () => {
 });
 
 test("Create release", async () => {
-  context.payload = { action: "closed" };
+  jest.replaceProperty(github, "context", {
+    payload: {
+      action: "closed",
+    },
+  });
   getPR.mockReturnValueOnce(
     Promise.resolve({
       data: { head: { sha: "sha" }, merged: true },
@@ -85,7 +97,11 @@ test("Create release", async () => {
 });
 
 test("Dry run labeled event", async () => {
-  context.payload = { action: "labeled" };
+  jest.replaceProperty(github, "context", {
+    payload: {
+      action: "labeled",
+    },
+  });
   setInputs({ dry_run: "true" });
   getNextVersion.mockReturnValueOnce(
     Promise.resolve()
@@ -97,10 +113,12 @@ test("Dry run labeled event", async () => {
 })
 
 test("Create prerelease", async () => {
-  context.payload = {
-    action: "created",
-    comment: { body: "/prerelease ", id: "comment_id" },
-  };
+  jest.replaceProperty(github, "context", {
+    payload: {
+      action: "created",
+      comment: { body: "/prerelease ", id: "comment_id" },
+    },
+  });
   getPR.mockReturnValueOnce(
     Promise.resolve({
       data: { head: { sha: "sha" } },
@@ -131,10 +149,12 @@ test("Create prerelease", async () => {
 });
 
 test("Other comment should not trigger build", async () => {
-  context.payload = {
-    action: "created",
-    comment: { body: "Some comment", id: "comment_id" },
-  };
+  jest.replaceProperty(github, "context", {
+    payload: {
+      action: "created",
+      comment: { body: "Some comment", id: "comment_id" },
+    },
+  });
   await run();
   expect(getPR).not.toHaveBeenCalled();
 });

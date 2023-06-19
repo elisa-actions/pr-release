@@ -1,11 +1,11 @@
 const core = require("@actions/core");
-const { GitHub, context } = require("@actions/github");
+const github = require("@actions/github");
 
 async function addCommentReaction(comment_id, reaction) {
   const token = core.getInput("github_token", { required: true });
-  const octokit = new GitHub(token);
-  const { owner, repo } = context.issue;
-  octokit.reactions.createForIssueComment({
+  const octokit = github.getOctokit(token);
+  const { owner, repo } = github.context.issue;
+  return await octokit.rest.reactions.createForIssueComment({
     owner,
     repo,
     comment_id,
@@ -15,9 +15,9 @@ async function addCommentReaction(comment_id, reaction) {
 
 async function addComment(message) {
   const token = core.getInput("github_token", { required: true });
-  const octokit = new GitHub(token);
-  const { owner, repo, number } = context.issue;
-  octokit.issues.createComment({
+  const octokit = github.getOctokit(token);
+  const { owner, repo, number } = github.context.issue;
+  return await octokit.rest.issues.createComment({
     owner,
     repo,
     issue_number: number,
