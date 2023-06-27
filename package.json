@@ -19,7 +19,7 @@
     "@semantic-release/commit-analyzer": "9.0.2",
     "conventional-changelog-conventionalcommits": "^6.1.0",
     "conventional-commits-parser": "^4.0.0",
-    "semver": "^7.5.2"
+    "semver": "^7.5.3"
   },
   "devDependencies": {
     "jest": "^29.5.0"
