@@ -44,8 +44,8 @@ outputs:
     version:
         description: 'Version of the new release'
 runs:
-    using: 'node16'
-    main: 'index.js'
+    using: 'docker'
+    image: 'Dockerfile'
 branding:
     icon: 'tag'  
     color: 'purple'
