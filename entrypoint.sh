@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-node /app/index.js
+node --experimental-vm-modules /app/index.js
