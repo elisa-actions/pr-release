@@ -3,7 +3,6 @@ const github = require("@actions/github");
 const semver = require("semver");
 const { analyzeCommits } = require("@semantic-release/commit-analyzer");
 
-const cwd = process.cwd();
 const PRERELEASE_ID_MAX_LENGTH = 10;
 
 async function getNextVersion(prerelease) {
@@ -65,6 +64,7 @@ async function getBumpLevel(commitArray, prerelease) {
     hash: index.toString(),
     message,
   }));
+  const cwd = process.env.GITHUB_WORKSPACE;
   const releaseType = await analyzeCommits(
     {
       preset: "conventionalcommits",
