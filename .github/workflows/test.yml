@@ -3,17 +3,21 @@ name: Run tests
 on:
   push:
 
-env:
-  NODE_OPTIONS: "--experimental-vm-modules npx jest"
-
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
-      with: 
-        node-version: '20'
-        cache: 'npm'
-    - run: npm ci
-    - run: npm test
+    - uses: docker/setup-qemu-action@v2
+    - uses: docker/setup-buildx-action@v2
+    - name: Build Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: Dockerfile.test
+        load: true
+        push: false
+        tags: pr-release:test
+    - name: Run unit tests
+      run: |
+        docker run --rm pr-release:test
