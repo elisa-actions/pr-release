@@ -1,6 +1,5 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
-let conventionalCommitsParser = require("conventional-commits-parser");
 
 const commitHeaders = {
   feat: "Features",
@@ -31,8 +30,10 @@ async function createReleaseNotes() {
       "Performance Improvements": [],
       Reverts: [],
     };
+    const ConventionalCommitsParser = await import("conventional-commits-parser")
+    const parser = new ConventionalCommitsParser.CommitParser()
     commits.data.forEach(function (item) {
-      const parsedCommit = conventionalCommitsParser.sync(item.commit.message);
+      const parsedCommit = parser.parse(item.commit.message);
       console.log(parsedCommit);
       const scopedType = parsedCommit.scope
           ? `${parsedCommit.type}(${parsedCommit.scope})`
