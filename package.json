@@ -15,7 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "@actions/core": "^1.11.1",
-    "@actions/github": "^6.0.0",
+    "@actions/github": "^6.0.1",
     "@semantic-release/commit-analyzer": "^13.0.1",
     "conventional-changelog-conventionalcommits": "^8.0.0",
     "conventional-commits-parser": "^6.1.0",
