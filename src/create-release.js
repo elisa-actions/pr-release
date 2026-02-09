@@ -1,5 +1,5 @@
-const core = require("@actions/core");
-const github = require("@actions/github");
+import * as core from "@actions/core";
+import * as github from "@actions/github";
 
 async function createRelease(version, commitSha, name, body, prerelease) {
   const token = core.getInput("github_token", { required: true });
@@ -25,4 +25,4 @@ async function createRelease(version, commitSha, name, body, prerelease) {
   return response.data;
 }
 
-module.exports = createRelease;
+export default createRelease;

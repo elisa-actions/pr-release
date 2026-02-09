@@ -1,84 +1,128 @@
-jest.mock("@actions/github");
-const github = require("@actions/github");
-const setInputs = require("./test-utils");
+import { jest, beforeEach, afterEach, test, expect } from "@jest/globals";
 
-jest.mock("../src/comment");
-jest.mock("../src/create-release");
-jest.mock("../src/pr");
-jest.mock("../src/release-data");
-jest.mock("../src/update-tag");
-jest.mock("../src/version");
+const githubMockModule = {
+  context: {},
+  getOctokit: jest.fn(),
+};
 
-const { addComment, addCommentReaction } = require("../src/comment");
-const createRelease = require("../src/create-release");
-const getPR = require("../src/pr");
-const createReleaseData = require("../src/release-data");
-const getNextVersion = require("../src/version");
-const updateMajorTag = require("../src/update-tag")
-const { run } = require("../src/pr-release");
+const coreMockModule = {
+  getInput: jest.fn(),
+  setOutput: jest.fn(),
+  setFailed: jest.fn(),
+};
+
+const commentMockModule = {
+  addComment: jest.fn(),
+  addCommentReaction: jest.fn(),
+};
+
+const createReleaseMockModule = {
+  default: jest.fn(),
+};
+
+const prMockModule = {
+  default: jest.fn(),
+};
+
+const releaseDataMockModule = {
+  default: jest.fn(),
+};
+
+const updateTagMockModule = {
+  default: jest.fn(),
+};
+
+const versionMockModule = {
+  default: jest.fn(),
+};
+
+await jest.unstable_mockModule("@actions/github", () => githubMockModule);
+await jest.unstable_mockModule("@actions/core", () => coreMockModule);
+await jest.unstable_mockModule("../src/comment.js", () => commentMockModule);
+await jest.unstable_mockModule("../src/create-release.js", () => createReleaseMockModule);
+await jest.unstable_mockModule("../src/pr.js", () => prMockModule);
+await jest.unstable_mockModule("../src/release-data.js", () => releaseDataMockModule);
+await jest.unstable_mockModule("../src/update-tag.js", () => updateTagMockModule);
+await jest.unstable_mockModule("../src/version.js", () => versionMockModule);
+
+const github = await import("@actions/github");
+const setInputs = (await import("./test-utils.js")).default;
+
+const { addComment, addCommentReaction } = await import("../src/comment.js");
+const createRelease = (await import("../src/create-release.js")).default;
+const getPR = (await import("../src/pr.js")).default;
+const createReleaseData = (await import("../src/release-data.js")).default;
+const getNextVersion = (await import("../src/version.js")).default;
+const updateMajorTag = (await import("../src/update-tag.js")).default;
+const { run } = await import("../src/pr-release.js");
 
 beforeEach(() => {
-  createReleaseData.mockReturnValueOnce(
-    Promise.resolve({ title: "Release title", body: "Release body" })
-  );
+  createReleaseData.mockResolvedValueOnce({
+    title: "Release title",
+    body: "Release body",
+  });
 });
 
 afterEach(() => {
   jest.clearAllMocks();
+  Object.keys(githubMockModule.context).forEach((key) => {
+    delete githubMockModule.context[key];
+  });
 });
 
 test("PR was closed", async () => {
-  jest.replaceProperty(github, "context", {
+  Object.assign(githubMockModule.context, {
     payload: {
       action: "closed",
     },
   });
-  getPR.mockReturnValueOnce(
-    Promise.resolve({
-      data: { head: { sha: "sha" }, merged: false, number: 1 },
-    })
-  );
+
+  getPR.mockResolvedValueOnce({
+    data: { head: { sha: "sha" }, merged: false, number: 1 },
+  });
+
   await run();
+
   expect(getNextVersion).not.toHaveBeenCalled();
 });
 
 test("New release not required", async () => {
-  jest.replaceProperty(github, "context", {
+  Object.assign(githubMockModule.context, {
     payload: {
       action: "closed",
     },
   });
-  getPR.mockReturnValueOnce(
-    Promise.resolve({
-      data: { head: { sha: "sha" }, merged: true },
-    })
-  );
-  getNextVersion.mockReturnValueOnce(Promise.resolve(null));
+
+  getPR.mockResolvedValueOnce({
+    data: { head: { sha: "sha" }, merged: true },
+  });
+
+  getNextVersion.mockResolvedValueOnce(null);
+
   await run();
-  expect(addComment).toHaveBeenCalledWith(
-    "New release not required :sparkles:"
-  );
+
+  expect(addComment).toHaveBeenCalledWith("New release not required :sparkles:");
   expect(createReleaseData).not.toHaveBeenCalled();
 });
 
 test("Create release", async () => {
-  jest.replaceProperty(github, "context", {
+  Object.assign(githubMockModule.context, {
     payload: {
       action: "closed",
     },
   });
-  getPR.mockReturnValueOnce(
-    Promise.resolve({
-      data: { head: { sha: "sha" }, merged: true },
-    })
-  );
-  getNextVersion.mockReturnValueOnce(Promise.resolve("1.2.0"));
-  createRelease.mockReturnValueOnce(
-    Promise.resolve({
-      html_url: "URL",
-      draft: false,
-    })
-  );
+
+  getPR.mockResolvedValueOnce({
+    data: { head: { sha: "sha" }, merged: true },
+  });
+
+  getNextVersion.mockResolvedValueOnce("1.2.0");
+
+  createRelease.mockResolvedValueOnce({
+    html_url: "URL",
+    draft: false,
+  });
+
   setInputs({ dry_run: "false" });
 
   await run();
@@ -90,47 +134,44 @@ test("Create release", async () => {
     "Release body",
     false
   );
-  expect(updateMajorTag).toHaveBeenCalledWith("1.2.0", "sha")
-  expect(addComment).toHaveBeenCalledWith(
-    "Version [1.2.0](URL) released! :zap:"
-  );
+  expect(updateMajorTag).toHaveBeenCalledWith("1.2.0", "sha");
+  expect(addComment).toHaveBeenCalledWith("Version [1.2.0](URL) released! :zap:");
 });
 
 test("Dry run labeled event", async () => {
-  jest.replaceProperty(github, "context", {
+  Object.assign(githubMockModule.context, {
     payload: {
       action: "labeled",
     },
   });
+
   setInputs({ dry_run: "true" });
-  getNextVersion.mockReturnValueOnce(
-    Promise.resolve()
-  );
+  getNextVersion.mockResolvedValueOnce();
 
   await run();
 
   expect(getNextVersion).toHaveBeenCalledWith(false);
-})
+});
 
 test("Create prerelease", async () => {
-  jest.replaceProperty(github, "context", {
+  Object.assign(githubMockModule.context, {
     payload: {
       action: "created",
       comment: { body: "/prerelease ", id: "comment_id" },
     },
   });
-  getPR.mockReturnValueOnce(
-    Promise.resolve({
-      data: { head: { sha: "sha" } },
-    })
-  );
-  getNextVersion.mockReturnValueOnce(Promise.resolve("1.2.0-rc.0"));
-  createRelease.mockReturnValueOnce(
-    Promise.resolve({
-      html_url: "URL",
-      draft: false,
-    })
-  );
+
+  getPR.mockResolvedValueOnce({
+    data: { head: { sha: "sha" } },
+  });
+
+  getNextVersion.mockResolvedValueOnce("1.2.0-rc.0");
+
+  createRelease.mockResolvedValueOnce({
+    html_url: "URL",
+    draft: false,
+  });
+
   setInputs({ dry_run: "false" });
 
   await run();
@@ -149,12 +190,14 @@ test("Create prerelease", async () => {
 });
 
 test("Other comment should not trigger build", async () => {
-  jest.replaceProperty(github, "context", {
+  Object.assign(githubMockModule.context, {
     payload: {
       action: "created",
       comment: { body: "Some comment", id: "comment_id" },
     },
   });
+
   await run();
+
   expect(getPR).not.toHaveBeenCalled();
 });

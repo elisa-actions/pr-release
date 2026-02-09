@@ -1,6 +1,6 @@
-const core = require("@actions/core");
-const github = require("@actions/github");
-const semver = require("semver");
+import * as core from "@actions/core";
+import * as github from "@actions/github";
+import semver from "semver";
 
 async function updateMajorTag(version, sha) {
   if (core.getInput("update_major_tag") !== "true" || semver.prerelease(version)) {
@@ -36,4 +36,4 @@ async function updateMajorTag(version, sha) {
   }
 }
 
-module.exports = updateMajorTag;
+export default updateMajorTag;

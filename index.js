@@ -1,3 +1,3 @@
-const { run } = require("./src/pr-release");
+import { run } from "./src/pr-release.js";
 
 run();

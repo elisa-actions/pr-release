@@ -1,8 +1,22 @@
-jest.mock("@actions/github");
+import { jest, beforeEach, test, expect } from "@jest/globals";
 
-const setInputs = require("./test-utils");
-const getPR = require("../src/pr");
-const github = require("@actions/github");
+const githubMockModule = {
+  context: {},
+  getOctokit: jest.fn(),
+};
+
+const coreMockModule = {
+  getInput: jest.fn(),
+  setOutput: jest.fn(),
+  setFailed: jest.fn(),
+};
+
+await jest.unstable_mockModule("@actions/github", () => githubMockModule);
+await jest.unstable_mockModule("@actions/core", () => coreMockModule);
+
+const github = await import("@actions/github");
+const setInputs = (await import("./test-utils.js")).default;
+const getPR = (await import("../src/pr.js")).default;
 
 beforeEach(() => {
   setInputs({
@@ -11,7 +25,7 @@ beforeEach(() => {
 });
 
 test("get pull request", async () => {
-  dummyPR = { data: { head: { sha: "sha " } } };
+  const dummyPR = { data: { head: { sha: "sha " } } };
   const mockGithub = {
     rest: {
       pulls: {
@@ -19,8 +33,9 @@ test("get pull request", async () => {
       },
     },
   };
+
   github.getOctokit.mockImplementation((token) => mockGithub);
-  jest.replaceProperty(github, "context", {
+  Object.assign(githubMockModule.context, {
     issue: {
       owner: "owner",
       repo: "repo",
@@ -35,5 +50,5 @@ test("get pull request", async () => {
     owner: "owner",
     repo: "repo",
     pull_number: 1,
-  })
+  });
 });
