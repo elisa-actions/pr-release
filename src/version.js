@@ -1,6 +1,6 @@
-const core = require("@actions/core");
-const github = require("@actions/github");
-const semver = require("semver");
+import * as core from "@actions/core";
+import * as github from "@actions/github";
+import semver from "semver";
 
 const PRERELEASE_ID_MAX_LENGTH = 10;
 
@@ -78,4 +78,4 @@ async function getBumpLevel(commitArray, prerelease) {
   return releaseType;
 }
 
-module.exports = getNextVersion;
+export default getNextVersion;

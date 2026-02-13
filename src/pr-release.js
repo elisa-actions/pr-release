@@ -1,13 +1,13 @@
-const core = require("@actions/core");
-const github = require("@actions/github");
-const getNextVersion = require("./version");
-const getPR = require("./pr");
-const createReleaseData = require("./release-data");
-const createRelease = require("./create-release");
-const { addComment, addCommentReaction } = require("./comment");
-const updateMajorTag = require("./update-tag");
+import * as core from "@actions/core";
+import * as github from "@actions/github";
+import getNextVersion from "./version.js";
+import getPR from "./pr.js";
+import createReleaseData from "./release-data.js";
+import createRelease from "./create-release.js";
+import { addComment, addCommentReaction } from "./comment.js";
+import updateMajorTag from "./update-tag.js";
 
-exports.run = async function () {
+export async function run() {
   try {
     let prerelease = false;
     let dry_run = core.getInput("dry_run") === "true";

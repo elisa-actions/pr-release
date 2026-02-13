@@ -1,6 +1,6 @@
-const core = require("@actions/core");
-const github = require("@actions/github");
-const createReleaseNotes = require("./release-notes");
+import * as core from "@actions/core";
+import * as github from "@actions/github";
+import createReleaseNotes from "./release-notes.js";
 
 async function createReleaseData() {
   const token = core.getInput("github_token", { required: true });
@@ -31,4 +31,4 @@ function removeDependabotInstructions(body) {
   return body.substring(0, instructionPosition).trim();
 }
 
-module.exports = createReleaseData;
+export default createReleaseData;

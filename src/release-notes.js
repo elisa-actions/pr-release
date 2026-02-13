@@ -1,5 +1,6 @@
-const core = require("@actions/core");
-const github = require("@actions/github");
+import * as core from "@actions/core";
+import * as github from "@actions/github";
+import { CommitParser } from "conventional-commits-parser";
 
 const commitHeaders = {
   feat: "Features",
@@ -30,8 +31,7 @@ async function createReleaseNotes() {
       "Performance Improvements": [],
       Reverts: [],
     };
-    const ConventionalCommitsParser = await import("conventional-commits-parser")
-    const parser = new ConventionalCommitsParser.CommitParser()
+    const parser = new CommitParser();
     commits.data.forEach(function (item) {
       const parsedCommit = parser.parse(item.commit.message);
       console.log(parsedCommit);
@@ -71,4 +71,4 @@ async function createReleaseNotes() {
   }
 }
 
-module.exports = createReleaseNotes;
+export default createReleaseNotes;
