@@ -72,9 +72,6 @@ test("create release data default release notes", async () => {
     release_notes: "",
   });
 
-  // createReleaseNotes was already stubbed once in beforeEach; stub again for this test
-  createReleaseNotes.mockResolvedValueOnce("release note data");
-
   const releaseData = await createReleaseData();
 
   expect(releaseData).toEqual({
