@@ -2,9 +2,10 @@
   "name": "pr-release-action",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "jest --maxWorkers=3"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --maxWorkers=3"
   },
   "repository": {
     "type": "git",
@@ -14,8 +15,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@actions/core": "^2.0.2",
-    "@actions/github": "^7.0.0",
+    "@actions/core": "^3.0.0",
+    "@actions/github": "^9.0.0",
+    "@actions/http-client": "^4.0.0",
     "@semantic-release/commit-analyzer": "^13.0.1",
     "conventional-changelog-conventionalcommits": "^9.1.0",
     "conventional-commits-parser": "^6.2.1",
@@ -23,5 +25,10 @@
   },
   "devDependencies": {
     "jest": "^30.2.0"
+  },
+  "overrides": {
+    "@actions/http-client": {
+      "undici": ">=6.23.0"
+    }
   }
 }

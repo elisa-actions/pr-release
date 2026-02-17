@@ -1,53 +1,76 @@
-jest.mock("@actions/github");
-const github = require("@actions/github");
-const setInputs = require("./test-utils");
-const createReleaseNotes = require("../src/release-notes");
+import { jest, beforeEach, afterEach, test, expect } from "@jest/globals";
+
+const githubMockModule = {
+  context: {},
+  getOctokit: jest.fn(),
+};
+
+const coreMockModule = {
+  getInput: jest.fn(),
+  setOutput: jest.fn(),
+  setFailed: jest.fn(),
+};
+
+await jest.unstable_mockModule("@actions/github", () => githubMockModule);
+await jest.unstable_mockModule("@actions/core", () => coreMockModule);
+
+const github = await import("@actions/github");
+const setInputs = (await import("./test-utils.js")).default;
+const createReleaseNotes = (await import("../src/release-notes.js")).default;
 
 beforeEach(() => {
   setInputs({
     github_token: "token",
   });
-  let githubMock = {
+
+  const githubApiMock = {
     rest: {
       pulls: {
-        listCommits: jest.fn().mockReturnValueOnce(
-            Promise.resolve({
-              data: [
-                {commit: {message: "feat: new feature"}, sha: "sha1"},
-                {commit: {message: "feature: other feature"}, sha: "sha2"},
-                {commit: {message: "fix: bugfix"}, sha: "sha3"},
-                {
-                  commit: {message: "perf: performance improvement"},
-                  sha: "sha4",
-                },
-                {commit: {message: "revert: revert"}, sha: "sha5"},
-                {commit: {message: "test: shouldn't be listed"}, sha: "sha6"},
-                {
-                  commit: {message: "fix(review): shouldn't be listed"},
-                  sha: "sha7"
-                },
-                {
-                  commit: {message: "fix(deps): bump package"},
-                  sha: "sha8"
-                },
-                {
-                  commit: {message: "fix(frontend): UI fixed"},
-                  sha: "sha9"
-                },
-              ],
-            })
-        ),
+        listCommits: jest.fn().mockResolvedValueOnce({
+          data: [
+            { commit: { message: "feat: new feature" }, sha: "sha1" },
+            { commit: { message: "feature: other feature" }, sha: "sha2" },
+            { commit: { message: "fix: bugfix" }, sha: "sha3" },
+            {
+              commit: { message: "perf: performance improvement" },
+              sha: "sha4",
+            },
+            { commit: { message: "revert: revert" }, sha: "sha5" },
+            { commit: { message: "test: shouldn't be listed" }, sha: "sha6" },
+            {
+              commit: { message: "fix(review): shouldn't be listed" },
+              sha: "sha7",
+            },
+            {
+              commit: { message: "fix(deps): bump package" },
+              sha: "sha8",
+            },
+            {
+              commit: { message: "fix(frontend): UI fixed" },
+              sha: "sha9",
+            },
+          ],
+        }),
       },
     },
   };
-  jest.replaceProperty(github, "context", {
+
+  Object.assign(githubMockModule.context, {
     issue: {
       owner: "owner",
       repo: "repo",
       number: 1,
     },
   });
-  github.getOctokit.mockImplementation((token) => githubMock);
+
+  github.getOctokit.mockImplementation((token) => githubApiMock);
+});
+
+afterEach(() => {
+  jest.resetAllMocks();
+  Object.keys(githubMockModule.context).forEach((key) => {
+    delete githubMockModule.context[key];
+  });
 });
 
 test("create release notes", async () => {

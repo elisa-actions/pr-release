@@ -1,7 +1,22 @@
-jest.mock("@actions/github");
-const github = require("@actions/github");
-const setInputs = require("./test-utils");
-const updateMajorTag = require("../src/update-tag");
+import { jest, beforeEach, afterEach, test, expect } from "@jest/globals";
+
+const githubMockModule = {
+  context: {},
+  getOctokit: jest.fn(),
+};
+
+const coreMockModule = {
+  getInput: jest.fn(),
+  setOutput: jest.fn(),
+  setFailed: jest.fn(),
+};
+
+await jest.unstable_mockModule("@actions/github", () => githubMockModule);
+await jest.unstable_mockModule("@actions/core", () => coreMockModule);
+
+const github = await import("@actions/github");
+const setInputs = (await import("./test-utils.js")).default;
+const updateMajorTag = (await import("../src/update-tag.js")).default;
 
 let githubMock;
 
@@ -15,13 +30,22 @@ beforeEach(() => {
       },
     },
   };
-  jest.replaceProperty(github, "context", {
+
+  Object.assign(githubMockModule.context, {
     repo: {
       owner: "owner",
       repo: "repo",
     },
   });
+
   github.getOctokit.mockImplementation((token) => githubMock);
+});
+
+afterEach(() => {
+  jest.resetAllMocks();
+  Object.keys(githubMockModule.context).forEach((key) => {
+    delete githubMockModule.context[key];
+  });
 });
 
 test("major tag is updated", async () => {
@@ -53,6 +77,8 @@ test("major tag is created", async () => {
       },
     },
   };
+  github.getOctokit.mockImplementation((token) => githubMock);
+
   await updateMajorTag("1.2.0", "abcd1234");
   expect(githubMock.rest.git.getRef).toHaveBeenCalledWith({
     owner: "owner",
