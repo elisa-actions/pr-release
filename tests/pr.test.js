@@ -1,4 +1,4 @@
-import { jest, beforeEach, test, expect } from "@jest/globals";
+import { jest, beforeEach, afterEach, test, expect } from "@jest/globals";
 
 const githubMockModule = {
   context: {},
@@ -21,6 +21,13 @@ const getPR = (await import("../src/pr.js")).default;
 beforeEach(() => {
   setInputs({
     github_token: "token",
+  });
+});
+
+afterEach(() => {
+  jest.resetAllMocks();
+  Object.keys(githubMockModule.context).forEach((key) => {
+    delete githubMockModule.context[key];
   });
 });
 

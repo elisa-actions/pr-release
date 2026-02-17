@@ -64,7 +64,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  jest.clearAllMocks();
+  jest.resetAllMocks();
   Object.keys(githubMockModule.context).forEach((key) => {
     delete githubMockModule.context[key];
   });

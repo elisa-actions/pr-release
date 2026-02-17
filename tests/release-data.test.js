@@ -1,4 +1,4 @@
-import { jest, beforeEach, test, expect } from "@jest/globals";
+import { jest, beforeEach, afterEach, test, expect } from "@jest/globals";
 
 const githubMockModule = {
   context: {},
@@ -50,6 +50,13 @@ beforeEach(() => {
 
   github.getOctokit.mockImplementation((token) => githubApiMock);
   createReleaseNotes.mockResolvedValueOnce("release note data");
+});
+
+afterEach(() => {
+  jest.resetAllMocks();
+  Object.keys(githubMockModule.context).forEach((key) => {
+    delete githubMockModule.context[key];
+  });
 });
 
 test("create release data", async () => {

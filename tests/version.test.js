@@ -1,4 +1,4 @@
-import { jest, beforeEach, test, expect, describe } from "@jest/globals";
+import { jest, beforeEach, afterEach, test, expect, describe } from "@jest/globals";
 
 const githubMockModule = {
   context: {},
@@ -52,6 +52,13 @@ const mockGitHub = (messages) => {
     },
   };
 };
+
+afterEach(() => {
+  jest.resetAllMocks();
+  Object.keys(githubMockModule.context).forEach((key) => {
+    delete githubMockModule.context[key];
+  });
+});
 
 describe("Test versioning", () => {
   beforeEach(() => {
