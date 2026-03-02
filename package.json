@@ -19,7 +19,7 @@
     "@actions/github": "^9.0.0",
     "@actions/http-client": "^4.0.0",
     "@semantic-release/commit-analyzer": "^13.0.1",
-    "conventional-changelog-conventionalcommits": "^9.1.0",
+    "conventional-changelog-conventionalcommits": "^9.2.0",
     "conventional-commits-parser": "^6.2.1",
     "semver": "^7.7.4"
   },
