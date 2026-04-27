@@ -15,8 +15,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@actions/github": "^9.1.1",
     "@actions/core": "^3.0.1",
-    "@actions/github": "^9.1.0",
     "@actions/http-client": "^4.0.0",
     "@semantic-release/commit-analyzer": "^13.0.1",
     "conventional-commits-parser": "^6.4.0",
